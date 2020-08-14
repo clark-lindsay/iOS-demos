@@ -14,12 +14,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(expenses.items) { item in
-                    ExpenseView(expense: item)
-                }
-            .onDelete(perform: removeItems)
-            }
+            ExpenseList(expenses: self.expenses)
             .navigationBarItems(leading: EditButton(), trailing:
                 Button(action: {
                     self.showingAddExpenseView = true
@@ -31,15 +26,28 @@ struct ContentView: View {
             AddView(expenses: self.expenses)
         }
     }
-    
-    func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
-    }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+struct ExpenseList: View {
+    @State var expenses: Expenses
+    
+    var body: some View {
+        List {
+            ForEach(expenses.items) { item in
+                ExpenseView(expense: item)
+            }
+        .onDelete(perform: removeItems)
+        }
+    }
+    
+    func removeItems(at offsets: IndexSet) {
+        expenses.items.remove(atOffsets: offsets)
     }
 }
 
