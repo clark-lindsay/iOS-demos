@@ -10,15 +10,19 @@ import SwiftUI
 
 struct Hexagon: InsettableShape {
     var insetAmount: CGFloat = 0
+    var animatableData: CGFloat {
+        get { insetAmount }
+        set { self.insetAmount = newValue }
+    }
     
     func path(in rect: CGRect) -> Path {
         var result = Path()
-        let effectiveWidth = rect.width - insetAmount
+        let effectiveWidth = rect.width - insetAmount * 2
         let points = ["minX": rect.minX + insetAmount,
-                      "midX": rect.midX,
+                      "midX": rect.midX - insetAmount,
                       "maxX": rect.maxX - insetAmount,
                       "minY": rect.minY + insetAmount,
-                      "midY": rect.midY,
+                      "midY": rect.midY - insetAmount,
                       "maxY": rect.maxY - insetAmount]
         
         result.move(to: CGPoint(x: (effectiveWidth / 4) * 3, y: points["minY"]!))
@@ -84,20 +88,45 @@ struct Flower: Shape {
 }
 
 struct ContentView: View {
-    @State private var petalWidth = 100.0
-    @State private var petalOffset = -20.0
+    @State private var insetAmount: CGFloat = 50
+    @State private var circleRadiusMultiplier: CGFloat = 1
     
     var body: some View {
         VStack {
-            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
-                .fill(Color.green, style: FillStyle(eoFill: true))
-                .frame(width: 300, height: 300)
-            Text("Petal Width")
-            Slider(value: $petalWidth, in: 1...200)
-                .padding([.bottom, .horizontal])
-            Text("Petal Offset")
-            Slider(value: $petalOffset, in: -40...40)
-                .padding([.bottom, .horizontal])
+            Hexagon(insetAmount: insetAmount)
+                .frame(width: 300, height: 250)
+                .foregroundColor(.black)
+                .onTapGesture {
+                    withAnimation {
+                    self.insetAmount = CGFloat.random(in: 10...90)
+                    }
+                }
+            VStack {
+                ZStack {
+                    Circle()
+                        .foregroundColor(.red)
+                        .frame(width: 100 * circleRadiusMultiplier)
+                        .offset(x: -50, y: -50)
+                        .blendMode(.screen)
+                    Circle()
+                        .foregroundColor(.green)
+                        .frame(width: 100 * circleRadiusMultiplier)
+                        .offset(x: 50, y: -50)
+                        .blendMode(.screen)
+                    Circle()
+                        .foregroundColor(.blue)
+                        .frame(width: 100 * circleRadiusMultiplier)
+                        .offset(x: 0, y: 50)
+                        .blendMode(.screen)
+                }
+                    .frame(width: 300, height: 300)
+                Slider(value: $circleRadiusMultiplier, in: 0...3)
+                    .padding()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black)
+            .edgesIgnoringSafeArea(.all)
+
         }
     }
 
